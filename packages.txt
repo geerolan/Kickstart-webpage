@@ -1,0 +1,6 @@
+#package list to be installed using pip
+
+Flask
+Flask-PyMongo
+Flask-Mongokit
+Flask-Login

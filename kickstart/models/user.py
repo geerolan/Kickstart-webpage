@@ -5,10 +5,11 @@ class UserDoc(Document):
 		'username': basestring,
 		'firstName': basestring,
 		'lastName': basestring,
+		'email' : basestring
 		'password': basestring
 	}
 
-	required_fields = ['username', 'firstName', 'lastName', 'password']
+	required_fields = ['username', 'firstName', 'lastName', 'email','password']
 
 	use_dot_notation = True
 

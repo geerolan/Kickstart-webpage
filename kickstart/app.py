@@ -14,9 +14,35 @@ connection = Connection(app.config['MONGODB_HOST'],
 connection.register([UserDoc])
 userCol = connection['dev'].users
 
+#Login manager
+def init_login():
+	login_manager = LoginManager()
+	login_manager.init_app(app)
+
+	@login_manager.user_loader
+	def load_user(uid):
+		return utils.getUser(uid)
+
+@app.route('/')
+def index():
+	return render_template('index.html')
+
+#Initialize flask-login
+init_login()
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	#TODO insert dat body 
+	if request.method == 'POST':
+		User = utils.authenticate(request.data['username'], request.data['pwd'])
+		if User is not None:
+			login.login_user(User)
+			if login.current_user.is_authenticated():
+				redirect(url_for('index'), isAuth='true')
+			redirect(url_for('index'), isAuth='true')
+		else
+			redirect(url_for('index'), isAuth='false')
+	else:
+		render_template('login.html', isAuth='false')	
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -33,6 +59,3 @@ def register():
 
 if __name__ == '__main__':
 	app.run()
-
-
-
