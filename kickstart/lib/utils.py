@@ -1,11 +1,12 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from classes.user import User
+from kickstart.classes.user import User
 
-def createUser(col, uName, fName, lName, pwd):
+def createUser(col, uName, fName, lName, email, pwd):
 	newDoc = col.UserDoc()
 	newDoc['username'] = uName
 	newDoc['firstName'] = fName
 	newDoc['lastName'] = lName
+	newDoc['email'] = email
 	newDoc['password'] = generate_password_hash(pwd)
 	
 	try:
@@ -15,16 +16,19 @@ def createUser(col, uName, fName, lName, pwd):
 		raise Exception
 
 def getUser(col, uid):
-	userDoc = col.findOne({"_id" : uid})
+	userDoc = col.UserDoc.find_one({"_id" : uid})
+	print userDoc
 	if(userDoc is None):
 		return None
 	return User(userDoc)
 	
 def authenticate(col, uName, pwd):
-	userDoc = col.findOne({"username" : uName})
+	userDoc = col.UserDoc.find_one({"username" : uName})
 	if(userDoc is None):
+		print 'does not exist'
 		return None
 	if(check_password_hash(userDoc.password, pwd)):
+		print 'it checks out'
 		return User(userDoc)
 	
 	return None

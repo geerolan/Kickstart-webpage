@@ -5,7 +5,7 @@ class UserDoc(Document):
 		'username': basestring,
 		'firstName': basestring,
 		'lastName': basestring,
-		'email' : basestring
+		'email' : basestring,
 		'password': basestring
 	}
 

@@ -1,10 +1,11 @@
-class User(userDoc):
-	uid = userDoc._id.encode('utf-8')
-	firstName = userDoc.firstName
-	lastName = userDoc.lastName
-	userName = userDoc.userName
-	email = userDoc.email
-	password = userDoc.password
+class User():
+	def __init__(self, userDoc):
+		self.uid = userDoc['_id']
+		self.firstName = userDoc['firstName']
+		self.lastName = userDoc['lastName']
+		self.userName = userDoc['username']
+		self.email = userDoc['email']
+		self.password = userDoc['password']
 
 	def is_authenticated(self):
 		return True
@@ -16,4 +17,4 @@ class User(userDoc):
 		return False
 
 	def get_id(self):
-		return self.uid
+		return self.uid.encode('utf-8')
