@@ -1,6 +1,7 @@
-from flask import Flask, request, render_template
+from flask import Flask, session, request, redirect, url_for, render_template
 from mongokit import Connection
 from models.user import UserDoc
+from lib import utils
 
 MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
@@ -14,48 +15,41 @@ connection = Connection(app.config['MONGODB_HOST'],
 connection.register([UserDoc])
 userCol = connection['dev'].users
 
-#Login manager
-def init_login():
-	login_manager = LoginManager()
-	login_manager.init_app(app)
-
-	@login_manager.user_loader
-	def load_user(uid):
-		return utils.getUser(uid)
+app.secret_key = 'zK\x88\xb8)\x07\x00\xb4\xab\x08Dw\xc1L\x96\t\xddiZ7\xba\xe2\xc8\x07'
 
 @app.route('/')
 def index():
-	return render_template('index.html')
+	if 'username' in session:
+		return render_template('index.html', loggedIn="true")
+	print "not in session"
+	return render_template('index.html', loggedIn="false")
 
-#Initialize flask-login
-init_login()
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
-	if request.method == 'POST':
-		User = utils.authenticate(request.data['username'], request.data['pwd'])
-		if User is not None:
-			login.login_user(User)
-			if login.current_user.is_authenticated():
-				redirect(url_for('index'), isAuth='true')
-			redirect(url_for('index'), isAuth='true')
-		else
-			redirect(url_for('index'), isAuth='false')
-	else:
-		render_template('login.html', isAuth='false')	
+	try:
+		User = utils.authenticate(userCol, request.form['username'], request.form['pwd'])
+		session['username'] = User.username
+		return redirect(url_for('index'))
+
+	except utils.InvalidLoginException as e:
+		return render_template('index.html', loggedIn='false', msg=str(e))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	if request.method == 'POST':
-		uName = request.data['username']
-		fName = request.data['firstName']
-		lName = request.data['lastName']
-		pwd = request.data['pwd']
-		utils.createUser(userCol, uName, fName, lName, pwd)
-		return redirect(url_for('/login'))
+		uName = request.form['username']
+		fName = request.form['firstName']
+		lName = request.form['lastName']
+		email = request.form['email']
+		pwd = request.form['pwd']
+		try:
+			utils.createUser(userCol, uName, fName, lName, email, pwd)
+			return redirect(url_for('/'))
+		except utils.AlreadyExistsException as e:
+			return render_template('register.html', msg=str(e))
 
-	else:
-		return render_template('register.html')
+	return render_template('register.html')
 
 if __name__ == '__main__':
-	app.run()
+	app.run(debug=True)

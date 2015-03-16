@@ -1,7 +1,22 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from kickstart.classes.user import User
+
+class InvalidLoginException(Exception):
+	def __init__(self, message):
+		self.message = message
+	def __str__(self):
+		return repr(self.message)
+
+class AlreadyExistsException(Exception):
+	def __init__(self, message):
+		self.message = message
+	def __str__(self):
+		return repr(self.message)
 
 def createUser(col, uName, fName, lName, email, pwd):
+	userDoc = col.UserDoc.find_one({"username" : uName})
+	if userDoc:
+		raise AlreadyExistsException("user %s already exists" %uName)
+
 	newDoc = col.UserDoc()
 	newDoc['username'] = uName
 	newDoc['firstName'] = fName
@@ -15,21 +30,10 @@ def createUser(col, uName, fName, lName, email, pwd):
 	except Exception:
 		raise Exception
 
-def getUser(col, uid):
-	userDoc = col.UserDoc.find_one({"_id" : uid})
-	print userDoc
-	if(userDoc is None):
-		return None
-	return User(userDoc)
-	
 def authenticate(col, uName, pwd):
 	userDoc = col.UserDoc.find_one({"username" : uName})
-	if(userDoc is None):
-		print 'does not exist'
-		return None
-	if(check_password_hash(userDoc.password, pwd)):
-		print 'it checks out'
-		return User(userDoc)
-	
-	return None
+	if(userDoc is not None and check_password_hash(userDoc.password, pwd)):
+		return userDoc
+
+	raise InvalidLoginException("Invalid username/pwd combination")
 
