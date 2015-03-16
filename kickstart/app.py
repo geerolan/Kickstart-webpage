@@ -1,6 +1,7 @@
 from flask import Flask, session, request, redirect, url_for, render_template
 from mongokit import Connection
 from models.user import UserDoc
+from models.idea import IdeaDoc
 from lib import utils
 
 MONGODB_HOST = 'localhost'
@@ -12,18 +13,46 @@ app.config.from_object(__name__)
 connection = Connection(app.config['MONGODB_HOST'], 
 						app.config['MONGODB_PORT'])
 
-connection.register([UserDoc])
+connection.register([UserDoc, IdeaDoc])
 userCol = connection['dev'].users
+ideaCol = connection['dev'].ideas
 
 app.secret_key = 'zK\x88\xb8)\x07\x00\xb4\xab\x08Dw\xc1L\x96\t\xddiZ7\xba\xe2\xc8\x07'
 
 @app.route('/')
 def index():
+	#TODO Add ideas to the template
 	if 'username' in session:
-		return render_template('index.html', loggedIn="true")
+		print session['username']
+		return render_template('index.html', loggedIn="true", user=session['username'])
 	print "not in session"
 	return render_template('index.html', loggedIn="false")
 
+
+@app.route('/editIdea', methods=['GET', 'POST'])
+def editIdea():
+	if request.method == 'GET':
+		print 'should not be here'
+		ideaId = request.args.get('ideaId')
+		if ideaId:
+			#idea exists, open up edit form
+			idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
+			return render_template('editIdea.html', idea=idea)
+		return render_template('editIdea.html', idea=None, username=request.args.get('username'))
+
+	if request.method == 'POST':
+		print request.form['ideaId']
+		if request.form['ideaId'] != '0':
+			#update idea
+			utils.updateIdea(ideaCol, request.form['ideaId'], request.form['ideaName'], request.form['desc'])
+			return redirect(url_for('index'))
+
+		try:
+			utils.createIdea(ideaCol, request.form['username'], request.form['ideaName'], request.form['desc'])
+		except AlreadyExistsException as e:
+			return render_template('/editIdea', msg=str(e))
+
+		return redirect(url_for('index'))
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -34,6 +63,11 @@ def login():
 
 	except utils.InvalidLoginException as e:
 		return render_template('index.html', loggedIn='false', msg=str(e))
+
+@app.route('/logout')
+def logout():
+	session.pop('username', None)
+	return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

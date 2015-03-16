@@ -1,4 +1,4 @@
-from mongokit import Document, Connection
+from mongokit import Document
 
 class UserDoc(Document):
 	structure = {
@@ -8,8 +8,6 @@ class UserDoc(Document):
 		'email' : basestring,
 		'password': basestring
 	}
-
-	required_fields = ['username', 'firstName', 'lastName', 'email','password']
 
 	use_dot_notation = True
 

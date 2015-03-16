@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
-
-{% block body %}
+{% block content %}
+{% with username=user %}
+{% include "navbar.html" %}
+{% endwith %}
 {% if loggedIn == "false" %}
 <div class="container">
 
@@ -15,9 +17,18 @@
 	<p class="danger">{{msg}}</p>
 	{% endif %}
 	<a href="/register">Don't have an account? Create one!</a>
-{% endif %}
-
 </div>
-
-<p>Logged In</p>
+{% endif %}
+{% if ideas %}
+<ul>
+	{% for idea in ideas %}
+	<li>Name : {{idea.name}}</li>
+	<li>Description : {{idea.des}} </li>
+	{% endfor %}
+</ul>
+{% endif %}
+<h2> Get started by creating an idea! </h2>
+<form action="/editIdea" method="get">
+<input type="hidden" name="username" value= {{user}} />
+<input type="submit" class="btn btn-lg btn-primary btn-block" value="New Idea"/>
 {% endblock %}
