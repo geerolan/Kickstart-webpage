@@ -23,9 +23,9 @@ app.secret_key = 'zK\x88\xb8)\x07\x00\xb4\xab\x08Dw\xc1L\x96\t\xddiZ7\xba\xe2\xc
 def index():
 	#TODO Add ideas to the template
 	if 'username' in session:
-		print session['username']
-		return render_template('index.html', loggedIn="true", user=session['username'])
-	print "not in session"
+		ideas = ideaCol.IdeaDoc.find({"username" : session['username']})
+		return render_template('index.html', loggedIn="true", user=session['username'], ideas=ideas)
+	
 	return render_template('index.html', loggedIn="false")
 
 
@@ -53,6 +53,12 @@ def editIdea():
 			return render_template('/editIdea', msg=str(e))
 
 		return redirect(url_for('index'))
+
+@app.route('/browse', methods=['GET'])
+def browseIdeas():
+	ideas = utils.getAllIdeas(ideaCol)
+	#TODO convert mongodb cursor to list of ideas
+	return render_template('browse.html', ideas=ideas)
 
 @app.route('/login', methods=['POST'])
 def login():

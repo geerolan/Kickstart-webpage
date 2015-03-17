@@ -37,6 +37,9 @@ def createIdea(col, uName, name, desc):
 	newDoc['desc'] = desc
 	newDoc.save()
 
+def getAllIdeas(col):
+	return col.Idea.Doc.find()
+
 def updateIdea(col, ideaId, name, desc):
 	idea = col.IdeaDoc.find_one({"_id" : ideaId})
 	idea.name = name

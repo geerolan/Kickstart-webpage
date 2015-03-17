@@ -19,16 +19,26 @@
 	<a href="/register">Don't have an account? Create one!</a>
 </div>
 {% endif %}
+
 {% if ideas %}
 <ul>
 	{% for idea in ideas %}
-	<li>Name : {{idea.name}}</li>
-	<li>Description : {{idea.des}} </li>
+	<li>
+		<form action="/editIdea" method="get">
+			<!-- insert label -->
+			<input type="hidden" value={{idea._id}} /> 
+			<input type="text" name="ideaName" readonly value={{idea.name}} />
+			<input type="textarea" name="desc" readonly value={{idea.desc}}  />
+			<input type="submit" class="btn btn-primary" value="Edit"/>
+		</form>
+
+	</li>
 	{% endfor %}
 </ul>
-{% endif %}
+{% else %}
 <h2> Get started by creating an idea! </h2>
 <form action="/editIdea" method="get">
 <input type="hidden" name="username" value= {{user}} />
 <input type="submit" class="btn btn-lg btn-primary btn-block" value="New Idea"/>
+{% endif %}
 {% endblock %}
