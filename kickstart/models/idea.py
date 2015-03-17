@@ -5,7 +5,8 @@ class IdeaDoc(Document):
 		'username': basestring,
 		'name': basestring,
 		'desc': basestring,
-		'likes' : int,
+		'tags': [basestring],
+		'likes' : int
 	}
  
 	default_values = {'likes' : 0}

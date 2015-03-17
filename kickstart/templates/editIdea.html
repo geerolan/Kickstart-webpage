@@ -11,6 +11,7 @@
   <input name="username" type="hidden" value= {{idea.username}} />
   <input name="ideaName" type="text" value= {{idea.name}} required/>
   <input name="desc" type="textarea" value= {{idea.desc}} required/>
+  <input name="tags" type="text" value= {% for tag in idea.tags %} {{tag}} {% endfor %} />
   <input type="submit" value="update"/>
 </form>
 
@@ -21,6 +22,7 @@
   <input name="username" type="hidden" value= {{username}} />
   <input name="ideaName" type="text" placeholder="Idea Name"/>
   <input name="desc" type="textarea" placeholder="Your idea here!"/>
+  <input name="tags" type="text" placeholder="please separate tags with commas" />
   <input type="submit" value="update"/>
 </form>
 

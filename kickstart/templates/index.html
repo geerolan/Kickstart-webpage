@@ -3,22 +3,7 @@
 {% with username=user %}
 {% include "navbar.html" %}
 {% endwith %}
-{% if loggedIn == "false" %}
-<div class="container">
-
-	<form class="form-signin" action="/login" method="post">
-		<h2 class="form-signin-heading">Please sign in</h2>
-		<input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
-		<input type="password" name="pwd" class="form-control" placeholder="Password" required>
-		<input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign in">
-	</form>
-
-	{% if msg %}
-	<p class="danger">{{msg}}</p>
-	{% endif %}
-	<a href="/register">Don't have an account? Create one!</a>
-</div>
-{% else %}
+{% if user %}
 
 {% if ideas %}
 <ul>
@@ -35,11 +20,29 @@
 	</li>
 	{% endfor %}
 </ul>
+
 {% else %}
+
 <h2> Get started by creating an idea! </h2>
 <form action="/editIdea" method="get">
 <input type="hidden" name="username" value= {{user}} />
 <input type="submit" class="btn btn-lg btn-primary btn-block" value="New Idea"/>
 {% endif %}
+
+{% else %}
+<div class="container">
+
+	<form class="form-signin" action="/login" method="post">
+		<h2 class="form-signin-heading">Please sign in</h2>
+		<input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
+		<input type="password" name="pwd" class="form-control" placeholder="Password" required>
+		<input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign in">
+	</form>
+
+	{% if msg %}
+	<p class="danger">{{msg}}</p>
+	{% endif %}
+	<a href="/register">Don't have an account? Create one!</a>
+</div>
 {% endif %}
 {% endblock %}

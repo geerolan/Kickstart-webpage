@@ -25,43 +25,38 @@ def index():
 	#TODO Add ideas to the template
 	if 'username' in session:
 		ideas = list(ideaCol.IdeaDoc.find({"username" : session['username']}))
-		print ideas
-		return render_template('index.html', loggedIn="true", user=session['username'], ideas=ideas)
+		return render_template('index.html', user=session['username'], ideas=ideas)
 	
-	return render_template('index.html', loggedIn="false")
+	return render_template('index.html')
 
 
 @app.route('/editIdea', methods=['GET', 'POST'])
 def editIdea():
-	if request.method == 'GET':
-		print 'should not be here'
-		ideaId = request.args.get('ideaId')
-		if ideaId:
-			#idea exists, open up edit form
-			idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
-			return render_template('editIdea.html', idea=idea)
-		return render_template('editIdea.html', idea=None, username=request.args.get('username'))
+	if 'username' in session:
+		if request.method == 'GET':
+			if request.args.get('ideaId'):
+				idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
+				return render_template('editIdea.html', idea=idea)
+			return render_template('editIdea.html', idea=None, username=request.args.get('username'))
 
-	if request.method == 'POST':
-		print request.form['ideaId']
-		if request.form['ideaId'] != '0':
-			#update idea
-			utils.updateIdea(ideaCol, request.form['ideaId'], request.form['ideaName'], request.form['desc'])
-			return redirect(url_for('index'))
+		if request.method == 'POST':
+			if request.form['ideaId'] != '0':
+				utils.updateIdea(ideaCol, request.form['ideaId'], request.form['ideaName'], request.form['desc'], request.form['tags'])
+				return redirect(url_for('index'))
+			try:
+				utils.createIdea(ideaCol, request.form['username'], request.form['ideaName'], request.form['desc'])
+				return redirect(url_for('index'))
+			except AlreadyExistsException as e:
+				return render_template('/editIdea', msg=str(e))
 
-		try:
-			utils.createIdea(ideaCol, request.form['username'], request.form['ideaName'], request.form['desc'])
-		except AlreadyExistsException as e:
-			return render_template('/editIdea', msg=str(e))
-
-		return redirect(url_for('index'))
+	return redirect(url_for('index'))
 
 @app.route('/addLike', methods=['POST'])
 def addLike():
 	#add new like and increase Like counter on target idea 
 	utils.createLike(request.form['ideaId'], request.form['username'])
 	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
-	idea.likes = idea.likes + 1
+	idea.likes += 1
 	idea.save()
 
 @app.route('/dislike', methods=['POST'])
@@ -69,7 +64,7 @@ def dislike():
 	#remove like and decrease Like counter on target idea
 	utils.removeLike(likeCol, request.form['ideaId'], request.form['username'])
 	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
-	idea.likes = idea.likes - 1
+	idea.likes -= 1
 	idea.save()
 
 @app.route('/browse', methods=['GET'])
@@ -85,7 +80,7 @@ def login():
 		return redirect(url_for('index'))
 
 	except utils.InvalidLoginException as e:
-		return render_template('index.html', loggedIn='false', msg=str(e))
+		return render_template('index.html', msg=str(e))
 
 @app.route('/logout')
 def logout():
@@ -95,13 +90,8 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	if request.method == 'POST':
-		uName = request.form['username']
-		fName = request.form['firstName']
-		lName = request.form['lastName']
-		email = request.form['email']
-		pwd = request.form['pwd']
 		try:
-			utils.createUser(userCol, uName, fName, lName, email, pwd)
+			utils.createUser(userCol, request.form['username'], request.form['firstName'], request.form['lastName'], request.form['email'], request.form['pwd'])
 			return redirect(url_for('/'))
 		except utils.AlreadyExistsException as e:
 			return render_template('register.html', msg=str(e))

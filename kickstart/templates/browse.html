@@ -9,7 +9,7 @@
   
 <ul>
 {% for idea in ideas %}
-<li> {{idea.name}} {{idea.username}}
+<li> {{idea.name}} {{idea.username}} {% for tag in idea.tags %} {{tag}} {% endfor %}
 {% endfor %}
 </ul>
 

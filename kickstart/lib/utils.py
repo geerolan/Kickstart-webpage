@@ -26,7 +26,7 @@ def createUser(col, uName, fName, lName, email, pwd):
 	
 	newDoc.save()
 
-def createIdea(col, uName, name, desc):
+def createIdea(col, uName, name, desc, tags):
 	ideaDoc = col.IdeaDoc.find_one({"$and": [{"username":uName}, {"name":name}]})
 	if ideaDoc:
 		raise AlreadyExistsException("Idea %s already exists!" %name)
@@ -35,15 +35,17 @@ def createIdea(col, uName, name, desc):
 	newDoc['username'] = uName
 	newDoc['name'] = name
 	newDoc['desc'] = desc
+	newDoc['tags'] = tags.split(",")
 	newDoc.save()
 
 def getAllIdeas(col):
 	return col.IdeaDoc.find()
 
-def updateIdea(col, ideaId, name, desc):
+def updateIdea(col, ideaId, name, desc, tags):
 	idea = col.IdeaDoc.find_one({"_id" : ideaId})
 	idea.name = name
 	idea.desc = desc
+	idea.tags = tags.split(',')
 	idea.save()
 
 def createLike(col, ideaId, username):
