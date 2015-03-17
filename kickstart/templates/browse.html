@@ -9,7 +9,8 @@
   
 <ul>
 {% for idea in ideas %}
-<li> {{idea.name}} {{idea.username}} {% for tag in idea.tags %} {{tag}} {% endfor %}
+<li> 
+  <a href="/ideas/{{idea._id}}">{{idea.name}}</a> {{idea.username}} {% for tag in idea.tags %} {{tag}} {% endfor %}
 {% endfor %}
 </ul>
 

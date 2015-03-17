@@ -7,11 +7,11 @@
 {% if idea %}
 
 <form action="/editIdea" method="post">
-  <input name="ideaId" type="hidden" value= {{idea._id}} />
-  <input name="username" type="hidden" value= {{idea.username}} />
-  <input name="ideaName" type="text" value= {{idea.name}} required/>
-  <input name="desc" type="textarea" value= {{idea.desc}} required/>
-  <input name="tags" type="text" value= {% for tag in idea.tags %} {{tag}} {% endfor %} />
+  <input name="ideaId" type="hidden" value= "{{idea._id}}"/>
+  <input name="username" type="hidden" value= "{{idea.username}}"/>
+  <input name="ideaName" type="text" value= "{{idea.name}}" required/>
+  <input name="desc" type="textarea" value= "{{idea.desc}}" required/>
+  <input name="tags" type="text" value= "{% for tag in idea.tags %} {{tag}}, {% endfor %}" />
   <input type="submit" value="update"/>
 </form>
 
@@ -19,7 +19,7 @@
 
 <form action="/editIdea" method="post">
   <input name="ideaId" type="hidden" value=0 />
-  <input name="username" type="hidden" value= {{username}} />
+  <input name="username" type="hidden" value="{{user}}"/>
   <input name="ideaName" type="text" placeholder="Idea Name"/>
   <input name="desc" type="textarea" placeholder="Your idea here!"/>
   <input name="tags" type="text" placeholder="please separate tags with commas" />

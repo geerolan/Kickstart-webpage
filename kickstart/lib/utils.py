@@ -1,5 +1,11 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
+class DocNotFoundException(Exception):
+	def __init__(self, message):
+		self.message = message
+	def __str__(self):
+		return repr(self.message)
+
 class InvalidLoginException(Exception):
 	def __init__(self, message):
 		self.message = message
@@ -35,17 +41,25 @@ def createIdea(col, uName, name, desc, tags):
 	newDoc['username'] = uName
 	newDoc['name'] = name
 	newDoc['desc'] = desc
-	newDoc['tags'] = tags.split(",")
+	newDoc['tags'] = tags.replace(" ", "").split(",")
 	newDoc.save()
 
 def getAllIdeas(col):
 	return col.IdeaDoc.find()
 
-def updateIdea(col, ideaId, name, desc, tags):
+def getIdeaById(col, ideaId):
 	idea = col.IdeaDoc.find_one({"_id" : ideaId})
+	if idea is None:
+		raise DocNotFoundException("idea %s not found" %ideaId)
+	return idea
+
+def updateIdea(col, ideaId, name, desc, tags):
+	idea = getIdeaById(col, ideaId)
+	if idea is None:
+		raise DocNotFoundException("Idea %s not found" %ideaId)
 	idea.name = name
 	idea.desc = desc
-	idea.tags = tags.split(',')
+	idea.tags = tags.rstrip(",").replace(" ", "").split(',')
 	idea.save()
 
 def createLike(col, ideaId, username):
@@ -68,7 +82,7 @@ def getLiked(col, username):
 def authenticate(col, uName, pwd):
 	userDoc = col.UserDoc.find_one({"username" : uName})
 	if userDoc is None:
-		raise InvalidLoginException("User does not exist")
+		raise InvalidLoginException("%s does not exist" %uName)
 	if(check_password_hash(userDoc.password, pwd)):
 		return userDoc
 

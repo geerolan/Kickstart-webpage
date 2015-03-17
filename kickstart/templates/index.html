@@ -11,9 +11,10 @@
 	<li>
 		<form action="/editIdea" method="get">
 			<!-- insert label -->
-			<input type="hidden" value={{idea._id}} /> 
-			<input type="text" name="ideaName" readonly value={{idea.name}} />
-			<input type="textarea" name="desc" readonly value={{idea.desc}}  />
+			<input type="hidden" name="ideaId" value= {{idea._id}} /> 
+			<input type="text" name="ideaName" readonly value= {{idea.name}} />
+			<input type="textarea" name="desc" readonly value= {{idea.desc}}  />
+			<input type="text" name="tags" readonly value="{% for tag in idea.tags %} {{tag}} {% endfor %}" />
 			<input type="submit" class="btn btn-primary" value="Edit"/>
 		</form>
 

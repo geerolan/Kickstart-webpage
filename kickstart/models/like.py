@@ -1,8 +1,7 @@
-from mongokit import Document, ObjectId
-
+from mongokit import Document
 class LikeDoc(Document):
 	structure = {
-		'ideaId': ObjectId(),
+		'ideaId': None,
 		'username': basestring
 	}
  
