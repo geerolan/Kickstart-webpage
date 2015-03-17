@@ -38,13 +38,30 @@ def createIdea(col, uName, name, desc):
 	newDoc.save()
 
 def getAllIdeas(col):
-	return col.Idea.Doc.find()
+	return col.IdeaDoc.find()
 
 def updateIdea(col, ideaId, name, desc):
 	idea = col.IdeaDoc.find_one({"_id" : ideaId})
 	idea.name = name
 	idea.desc = desc
 	idea.save()
+
+def createLike(col, ideaId, username):
+	likeDoc = col.LikeDoc.find_one({"$and": [{"ideaId" : ideaId}, {"username":username}]})
+	if likeDoc:
+		raise AlreadyExistsException("Idea %s has already been liked by user %s" %(ideaId, username))
+
+	newDoc = col.LikeDoc()
+	newDoc['ideaId'] = ideaId
+	newDoc['username'] = username
+	newDoc.save()
+
+def removeLike(col, ideaId, username):
+	likeDoc = col.LikeDoc.find_one({"$and": [{"ideaId" : ideaId}, {"username":username}]})
+	likeDoc.delete()
+
+def getLiked(col, username):
+	return list(col.LikeDoc.find({"username" : username}))
 
 def authenticate(col, uName, pwd):
 	userDoc = col.UserDoc.find_one({"username" : uName})

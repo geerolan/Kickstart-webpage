@@ -16,6 +16,7 @@ connection = Connection(app.config['MONGODB_HOST'],
 connection.register([UserDoc, IdeaDoc])
 userCol = connection['dev'].users
 ideaCol = connection['dev'].ideas
+likeCol = connection['dev'].likes
 
 app.secret_key = 'zK\x88\xb8)\x07\x00\xb4\xab\x08Dw\xc1L\x96\t\xddiZ7\xba\xe2\xc8\x07'
 
@@ -23,7 +24,8 @@ app.secret_key = 'zK\x88\xb8)\x07\x00\xb4\xab\x08Dw\xc1L\x96\t\xddiZ7\xba\xe2\xc
 def index():
 	#TODO Add ideas to the template
 	if 'username' in session:
-		ideas = ideaCol.IdeaDoc.find({"username" : session['username']})
+		ideas = list(ideaCol.IdeaDoc.find({"username" : session['username']}))
+		print ideas
 		return render_template('index.html', loggedIn="true", user=session['username'], ideas=ideas)
 	
 	return render_template('index.html', loggedIn="false")
@@ -54,10 +56,25 @@ def editIdea():
 
 		return redirect(url_for('index'))
 
+@app.route('/addLike', methods=['POST'])
+def addLike():
+	#add new like and increase Like counter on target idea 
+	utils.createLike(request.form['ideaId'], request.form['username'])
+	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
+	idea.likes = idea.likes + 1
+	idea.save()
+
+@app.route('/dislike', methods=['POST'])
+def dislike():
+	#remove like and decrease Like counter on target idea
+	utils.removeLike(likeCol, request.form['ideaId'], request.form['username'])
+	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
+	idea.likes = idea.likes - 1
+	idea.save()
+
 @app.route('/browse', methods=['GET'])
 def browseIdeas():
-	ideas = utils.getAllIdeas(ideaCol)
-	#TODO convert mongodb cursor to list of ideas
+	ideas = list(utils.getAllIdeas(ideaCol))
 	return render_template('browse.html', ideas=ideas)
 
 @app.route('/login', methods=['POST'])

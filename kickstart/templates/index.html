@@ -18,7 +18,7 @@
 	{% endif %}
 	<a href="/register">Don't have an account? Create one!</a>
 </div>
-{% endif %}
+{% else %}
 
 {% if ideas %}
 <ul>
@@ -40,5 +40,6 @@
 <form action="/editIdea" method="get">
 <input type="hidden" name="username" value= {{user}} />
 <input type="submit" class="btn btn-lg btn-primary btn-block" value="New Idea"/>
+{% endif %}
 {% endif %}
 {% endblock %}
