@@ -1,4 +1,11 @@
 from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
+
+class InvalidParamsException(Exception):
+	def __init__(self, message):
+		self.message = message
+	def __str__(self):
+		return repr(self.message)
 
 class DocNotFoundException(Exception):
 	def __init__(self, message):
@@ -32,15 +39,19 @@ def createUser(col, uName, fName, lName, email, pwd):
 	
 	newDoc.save()
 
-def createIdea(col, uName, name, desc, tags):
+def createIdea(col, uName, name, desc, cat, tags):
 	ideaDoc = col.IdeaDoc.find_one({"$and": [{"username":uName}, {"name":name}]})
 	if ideaDoc:
 		raise AlreadyExistsException("Idea %s already exists!" %name)
+
+	dateString = str(datetime.date.today())
 
 	newDoc = col.IdeaDoc()
 	newDoc['username'] = uName
 	newDoc['name'] = name
 	newDoc['desc'] = desc
+	newDoc['category'] = cat
+	newDoc['created'] = datetime.datetime.today()
 	newDoc['tags'] = tags.replace(" ", "").split(",")
 	newDoc.save()
 
@@ -88,3 +99,22 @@ def authenticate(col, uName, pwd):
 
 	raise InvalidLoginException("Invalid username/pwd combination")
 
+def getTopKIdeas(col, k, startDate, endDate):
+	#prereq : dates are in form YYYY-MM-DD
+
+	startDate = startDate.split('-')
+	endDate = endDate.split('-')
+	
+	try:
+		sDate = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+
+		eDate = datetime.datetime(int(endDate[0]), int(endDate[1]), int(endDate[2]))
+
+	except ValueError as e:
+		raise InvalidParamsException(str(e))
+
+	return col.IdeaDoc.find({
+		"created" : {
+		"$gte": sDate,
+		"$lt": eDate}
+		}).sort([("likes", -1)]).limit(int(k))

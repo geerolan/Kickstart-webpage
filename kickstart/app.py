@@ -1,11 +1,13 @@
 from flask import Flask, session, request, redirect, url_for, render_template
+from flask.ext.restful import Api, Resource, abort
 from bson.objectid import ObjectId
+from bson.json_util import dumps
 from werkzeug.routing import BaseConverter
 from mongokit import Connection
 from models.user import UserDoc
 from models.idea import IdeaDoc
 from models.like import LikeDoc
-from lib import utils
+from lib.utils import *
 
 MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
@@ -29,6 +31,21 @@ likeCol = connection['dev'].likes
 
 app.secret_key = 'zK\x88\xb8)\x07\x00\xb4\xab\x08Dw\xc1L\x96\t\xddiZ7\xba\xe2\xc8\x07'
 
+#Restful interface
+api = Api(app)
+class TopK(Resource):
+	def get(self, k, startDate, endDate):
+		headers = {'Content-Type': 'text/html'}
+		try:
+			#note, if none are found, returns "[]"
+			ideas = dumps(getTopKIdeas(ideaCol, k, startDate, endDate))
+			
+			return make_response(render_template('topk.html', ideas=ideas), 200, headers)
+
+		except InvalidParamsException as e:
+			abort(404, message=str(e))
+
+api.add_resource(TopK, '/best/<regex("\d{4}-\d{2}-\d{2}"):startDate>/<regex("\d{4}-\d{2}-\d{2}"):endDate>/<regex("\d+"):k>')
 @app.route('/')
 def index():
 	#TODO Add ideas to the template
@@ -46,19 +63,19 @@ def editIdea():
 			if 'ideaId' in request.args:
 				ideaId = ObjectId(request.args.get('ideaId'))
 				print ideaId
-				idea = utils.getIdeaById(ideaCol, ideaId)
+				idea = getIdeaById(ideaCol, ideaId)
 				return render_template('editIdea.html', idea=idea, user=session['username'])
 			return render_template('editIdea.html', idea=None, user=session['username'])
 
 		if request.method == 'POST':
 			if request.form['ideaId'] != '0':
-				utils.updateIdea(ideaCol, ObjectId(request.form['ideaId']), request.form['ideaName'], request.form['desc'], request.form['tags'])
+				updateIdea(ideaCol, ObjectId(request.form['ideaId']), request.form['ideaName'], request.form['desc'], request.form['tags'])
 				return redirect(url_for('index'))
 			try:
 				print request.form
-				utils.createIdea(ideaCol, request.form['username'], request.form['ideaName'], request.form['desc'], request.form['tags'])
+				createIdea(ideaCol, request.form['username'], request.form['ideaName'], request.form['desc'], request.form['cat'], request.form['tags'])
 				return redirect(url_for('index'))
-			except utils.AlreadyExistsException as e:
+			except AlreadyExistsException as e:
 				return render_template('editIdea.html', msg=str(e))
 
 	return redirect(url_for('index'))
@@ -66,7 +83,7 @@ def editIdea():
 @app.route('/addLike', methods=['POST'])
 def addLike():
 	#add new like and increase Like counter on target idea 
-	utils.createLike(request.form['ideaId'], request.form['username'])
+	createLike(request.form['ideaId'], request.form['username'])
 	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
 	idea.likes += 1
 	idea.save()
@@ -74,14 +91,14 @@ def addLike():
 @app.route('/dislike', methods=['POST'])
 def dislike():
 	#remove like and decrease Like counter on target idea
-	utils.removeLike(likeCol, request.form['ideaId'], request.form['username'])
+	removeLike(likeCol, request.form['ideaId'], request.form['username'])
 	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
 	idea.likes -= 1
 	idea.save()
 
 @app.route('/browse', methods=['GET'])
 def browseIdeas():
-	ideas = list(utils.getAllIdeas(ideaCol))
+	ideas = list(getAllIdeas(ideaCol))
 	if 'username' in session :
 		return render_template('browse.html', ideas=ideas, user=session['username'])
 
@@ -89,18 +106,18 @@ def browseIdeas():
 
 @app.route('/ideas/<regex("\w+"):ideaId>', methods=['GET'])
 def displayIdea(ideaId):
-	idea = utils.getIdeaById(ideaCol, ObjectId(ideaId))
+	idea = getIdeaById(ideaCol, ObjectId(ideaId))
 	#if none, then redirect to a 404
 	return render_template('idea.html', idea=idea)
 
 @app.route('/login', methods=['POST'])
 def login():
 	try:
-		User = utils.authenticate(userCol, request.form['username'], request.form['pwd'])
+		User = authenticate(userCol, request.form['username'], request.form['pwd'])
 		session['username'] = User.username
 		return redirect(url_for('index'))
 
-	except utils.InvalidLoginException as e:
+	except InvalidLoginException as e:
 		return render_template('index.html', msg=str(e))
 
 @app.route('/logout')
@@ -112,9 +129,9 @@ def logout():
 def register():
 	if request.method == 'POST':
 		try:
-			utils.createUser(userCol, request.form['username'], request.form['firstName'], request.form['lastName'], request.form['email'], request.form['pwd'])
+			createUser(userCol, request.form['username'], request.form['firstName'], request.form['lastName'], request.form['email'], request.form['pwd'])
 			return redirect(url_for('index'))
-		except utils.AlreadyExistsException as e:
+		except AlreadyExistsException as e:
 			return render_template('register.html', msg=str(e))
 
 	return render_template('register.html')

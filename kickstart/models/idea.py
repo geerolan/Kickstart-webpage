@@ -1,10 +1,13 @@
 from mongokit import Document
+import datetime
 
 class IdeaDoc(Document):
 	structure = {
 		'username': basestring,
 		'name': basestring,
 		'desc': basestring,
+		'category': basestring,
+		'created': datetime.datetime,
 		'tags': [basestring],
 		'likes' : int
 	}

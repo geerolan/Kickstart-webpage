@@ -3,4 +3,5 @@
 Flask
 Flask-PyMongo
 Flask-Mongokit
+flask-restful
 #Flask-Login

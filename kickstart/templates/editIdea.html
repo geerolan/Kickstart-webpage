@@ -6,22 +6,36 @@
 
 {% if idea %}
 
-<form action="/editIdea" method="post">
+<form id="edit" action="/editIdea" method="post">
   <input name="ideaId" type="hidden" value= "{{idea._id}}"/>
   <input name="username" type="hidden" value= "{{idea.username}}"/>
   <input name="ideaName" type="text" value= "{{idea.name}}" required/>
   <input name="desc" type="textarea" value= "{{idea.desc}}" required/>
+  <select form="edit" name="cat" required>
+    <option value="health">Health</option>
+    <option value="technology">Technology</option>
+    <option value="education">Education</option>
+    <option value="finance">Finance</option>
+    <option value="travel">Travel</option>
+  </select>
   <input name="tags" type="text" value= "{% for tag in idea.tags %} {{tag}}, {% endfor %}" />
   <input type="submit" value="update"/>
 </form>
 
 {% else %}
 
-<form action="/editIdea" method="post">
+<form id="new" action="/editIdea" method="post">
   <input name="ideaId" type="hidden" value=0 />
   <input name="username" type="hidden" value="{{user}}"/>
   <input name="ideaName" type="text" placeholder="Idea Name"/>
   <input name="desc" type="textarea" placeholder="Your idea here!"/>
+  <select form="new" name="cat" required>
+    <option value="health">Health</option>
+    <option value="technology">Technology</option>
+    <option value="education">Education</option>
+    <option value="finance">Finance</option>
+    <option value="travel">Travel</option>
+  </select>
   <input name="tags" type="text" placeholder="please separate tags with commas" />
   <input type="submit" value="update"/>
 </form>
