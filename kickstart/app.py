@@ -1,4 +1,4 @@
-from flask import Flask, session, request, redirect, url_for, render_template
+from flask import Flask, session, request, redirect, url_for, render_template, make_response
 from flask.ext.restful import Api, Resource, abort
 from bson.objectid import ObjectId
 from bson.json_util import dumps
@@ -45,7 +45,22 @@ class TopK(Resource):
 		except InvalidParamsException as e:
 			abort(404, message=str(e))
 
+class StatsDist(Resource):
+	def get(self):
+		categories = ['health', 'technology', 'education', 'finance', 'travel']
+		headers = {'Content-Type': 'text/html'}
+		stats = getStats(ideaCol)
+		if len(stats) > 0:
+			rest = [dict([('_id', cat), ('total', 0)]) for cat in categories if next((item for item in stats if item["_id"] == cat), None) is None]
+			if len(rest) > 0:
+				stats.extend(rest)
+			stats = sorted(stats, key=lambda k: k["_id"])
+
+		return make_response(render_template('stats.html', stats=dumps(stats), user=session['username']), 200, headers)
+
 api.add_resource(TopK, '/best/<regex("\d{4}-\d{2}-\d{2}"):startDate>/<regex("\d{4}-\d{2}-\d{2}"):endDate>/<regex("\d+"):k>')
+api.add_resource(StatsDist, '/stats')
+
 @app.route('/')
 def index():
 	#TODO Add ideas to the template
@@ -62,7 +77,6 @@ def editIdea():
 		if request.method == 'GET':
 			if 'ideaId' in request.args:
 				ideaId = ObjectId(request.args.get('ideaId'))
-				print ideaId
 				idea = getIdeaById(ideaCol, ideaId)
 				return render_template('editIdea.html', idea=idea, user=session['username'])
 			return render_template('editIdea.html', idea=None, user=session['username'])
@@ -72,7 +86,6 @@ def editIdea():
 				updateIdea(ideaCol, ObjectId(request.form['ideaId']), request.form['ideaName'], request.form['desc'], request.form['tags'])
 				return redirect(url_for('index'))
 			try:
-				print request.form
 				createIdea(ideaCol, request.form['username'], request.form['ideaName'], request.form['desc'], request.form['cat'], request.form['tags'])
 				return redirect(url_for('index'))
 			except AlreadyExistsException as e:

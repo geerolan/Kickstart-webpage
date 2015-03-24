@@ -118,3 +118,9 @@ def getTopKIdeas(col, k, startDate, endDate):
 		"$gte": sDate,
 		"$lt": eDate}
 		}).sort([("likes", -1)]).limit(int(k))
+
+def getStats(col):
+	cursor = col.aggregate({ "$group" :
+			{"_id" : "$category", "total" : {"$sum" : 1}}
+		})
+	return cursor['result']

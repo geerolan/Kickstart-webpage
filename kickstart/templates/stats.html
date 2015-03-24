@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% with username=user %}
+{% include "navbar.html" %}
+{% endwith %}
+{% if stats != '[]' %}
+
+<style>
+#chartdiv {
+  width   : 100%;
+  height    : 500px;
+  font-size : 11px;
+} 
+</style>
+
+<script>
+  var chart = AmCharts.makeChart("chartdiv", {
+    "type": "serial",
+    "theme": "none",
+    "dataProvider": {{stats | safe}},
+    "valueAxes": [{
+        "gridColor":"#FFFFFF",
+    "gridAlpha": 0.2,
+    "dashLength": 0
+    }],
+    "gridAboveGraphs": true,
+    "startDuration": 1,
+    "graphs": [{
+        "balloonText": "[[category]]: <b>[[value]]</b>",
+        "fillAlphas": 0.8,
+        "lineAlpha": 0.2,
+        "type": "column",
+        "valueField": "total"    
+    }],
+    "chartCursor": {
+        "categoryBalloonEnabled": false,
+        "cursorAlpha": 0,
+        "zoomable": false
+    },
+    "categoryField": "_id",
+    "categoryAxis": {
+        "gridPosition": "start",
+        "gridAlpha": 0,
+         "tickPosition":"start",
+         "tickLength":20
+    },
+  "exportConfig":{
+    "menuTop": 0,
+    "menuItems": [{
+      "icon": '/lib/3/images/export.png',
+      "format": 'png'   
+      }]  
+  }
+});
+</script>
+
+<div id="chartdiv"></div>
+
+{% else %}
+
+<p> No ideas have been created yet! </p>
+
+{% endif %}
+
+{% endblock %}
