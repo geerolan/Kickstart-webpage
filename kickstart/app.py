@@ -85,7 +85,7 @@ def editIdea():
 		return render_template('editIdea.html', idea=idea, user=session['username'])
 
 	if 'delete' in request.form:
-		deleteIdea(ideaCol, ObjectId(request.form['ideaId']))
+		deleteIdea(ideaCol, likeCol, ObjectId(request.form['ideaId']))
 	else:	
 		updateIdea(ideaCol, ObjectId(request.form['ideaId']), request.form['ideaName'], request.form['desc'], request.form['tags'])
 	

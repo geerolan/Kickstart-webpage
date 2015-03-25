@@ -72,10 +72,11 @@ def getIdeas(col, sortKey=None):
 def getIdeasByTag(col, tag):
 	return col.IdeaDoc.find({"tags" : {"$in": [tag]}})
 
-def deleteIdea(col, ideaId):
-	idea = col.IdeaDoc.find_one({"_id" : ideaId})
+def deleteIdea(ideaCol, likeCol, ideaId):
+	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
 	if idea is None:
 		raise DocNotFoundException("idea %s not found" %ideaId)
+	removeLikes(likeCol, ideaId)
 	idea.delete()
 
 def updateIdea(col, ideaId, name, desc, tags):
@@ -97,6 +98,13 @@ def createLike(col, ideaId, username):
 	newDoc['ideaId'] = ideaId
 	newDoc['username'] = username
 	newDoc.save()
+
+def removeLikes(col, ideaId):
+	likeDocs = list(col.LikeDoc.find({"ideaId" : ideaId}))
+	print likeDocs
+
+	for likeDoc in likeDocs:
+		likeDoc.delete()
 
 def removeLike(col, ideaId, username):
 	likeDoc = col.LikeDoc.find_one({"$and": [{"ideaId" : ideaId}, {"username":username}]})
