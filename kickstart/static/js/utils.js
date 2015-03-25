@@ -1,7 +1,3 @@
-function test(){
-	alert('hey this is a test!');
-}
-
 function Like(id, username){
 	$.post("/addLike", {'ideaId' : id, 'username' : username}, function(data){
 		console.log(data);
