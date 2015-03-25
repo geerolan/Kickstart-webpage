@@ -5,16 +5,10 @@
 {% include "navbar.html" %}
 {% endwith %}
 
-{% if ideas%}
+<h2> Top {{k}} Ideas </h2>
 
 {% with ideas=ideas %}
 {% include "listIdeas.html" %}
 {% endwith %}
 
-
-{% else %}
-
-<p> No ideas yet! Why don't you be the first? </p>
-
-{% endif %}
 {% endblock %}

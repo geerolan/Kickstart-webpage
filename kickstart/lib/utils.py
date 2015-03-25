@@ -49,14 +49,12 @@ def createIdea(col, uName, name, desc, cat, tags):
 	newDoc = col.IdeaDoc()
 	newDoc['username'] = uName
 	newDoc['name'] = name
+	newDoc['normalized'] = name.lower()
 	newDoc['desc'] = desc
 	newDoc['category'] = cat
 	newDoc['created'] = datetime.datetime.today()
 	newDoc['tags'] = tags.replace(" ", "").split(",")
 	newDoc.save()
-
-def getAllIdeas(col):
-	return col.IdeaDoc.find()
 
 def getIdeaById(col, ideaId):
 	idea = col.IdeaDoc.find_one({"_id" : ideaId})
@@ -64,13 +62,30 @@ def getIdeaById(col, ideaId):
 		raise DocNotFoundException("idea %s not found" %ideaId)
 	return idea
 
+def getIdeas(col, sortKey=None):
+	if sortKey:
+		if sortKey == 'name':
+			return col.IdeaDoc.find().sort([("normalized", 1)])
+		return col.IdeaDoc.find().sort([("%s" %sortKey, -1)])
+	return col.IdeaDoc.find()
+
+def getIdeasByTag(col, tag):
+	return col.IdeaDoc.find({"tags" : {"$in": [tag]}})
+
+def deleteIdea(col, ideaId):
+	idea = col.IdeaDoc.find_one({"_id" : ideaId})
+	if idea is None:
+		raise DocNotFoundException("idea %s not found" %ideaId)
+	idea.delete()
+
 def updateIdea(col, ideaId, name, desc, tags):
 	idea = getIdeaById(col, ideaId)
 	if idea is None:
 		raise DocNotFoundException("Idea %s not found" %ideaId)
 	idea.name = name
 	idea.desc = desc
-	idea.tags = tags.rstrip(",").replace(" ", "").split(',')
+	rawTags = tags.rstrip(",").replace(" ", "").split(",")
+	idea.tags = [raw for raw in rawTags if raw != u""]
 	idea.save()
 
 def createLike(col, ideaId, username):
@@ -107,7 +122,6 @@ def getTopKIdeas(col, k, startDate, endDate):
 	
 	try:
 		sDate = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
-
 		eDate = datetime.datetime(int(endDate[0]), int(endDate[1]), int(endDate[2]))
 
 	except ValueError as e:

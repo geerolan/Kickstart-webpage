@@ -5,6 +5,7 @@ class IdeaDoc(Document):
 	structure = {
 		'username': basestring,
 		'name': basestring,
+		'normalized': basestring,
 		'desc': basestring,
 		'category': basestring,
 		'created': datetime.datetime,

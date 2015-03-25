@@ -1,0 +1,10 @@
+{% block content %}
+
+<ul>
+{% for idea in ideas %}
+<li> 
+  <a href="/ideas/{{idea._id}}">{{idea['name']}}</a> Created By: {{idea.username}} {% for tag in idea.tags %} <a href="/browse?tag={{tag}}"> {{tag}} </a> {% endfor %} Created: {{idea.created}}
+{% endfor %}
+</ul>
+
+{% endblock %}
