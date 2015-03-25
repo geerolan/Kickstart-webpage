@@ -6,13 +6,17 @@
 
 <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
+<!--<input id="ideaId" type="hidden" value={{idea_id}}/>-->
+
 <h2> {{idea.name}} </h2>
 
 <h3> Proposed by {{idea.username}} </h3>
 
 <p> {{idea.desc}} </p>
 
-<button class=btn btn-large onClick="test()">Like </button>
+<p id="like"> {{idea.likes}} </p>
+<button class=btn btn-large onClick=Like("{{idea._id}}","{{user}}")>Like </button>
+<button class=btn btn-large onClick=DisLike("{{idea._id}}","{{user}}")>Dislike </button>
 
 {% endblock %}
 

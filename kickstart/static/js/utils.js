@@ -1,11 +1,17 @@
 function test(){
 	alert('hey this is a test!');
 }
-/*
+
 function Like(id, username){
-	//ajax to addLike
+	$.post("/addLike", {'ideaId' : id, 'username' : username}, function(data){
+		console.log(data);
+		$("#like").text(data);
+	});
 }
 
 function DisLike(id, username){
-	//ajax to removeLike
-}*/
+	$.post("/disLike", {'ideaId' : id, 'username' : username}, function(data){
+		console.log(data);
+		$("#like").text(data);
+	});
+}

@@ -1,4 +1,4 @@
-from flask import Flask, session, request, redirect, url_for, render_template, make_response, abort
+from flask import Flask, session, request, redirect, url_for, render_template, make_response, abort, jsonify
 from bson.objectid import ObjectId
 from bson.json_util import dumps
 from werkzeug.routing import BaseConverter
@@ -95,18 +95,20 @@ def editIdea():
 @app.route('/addLike', methods=['POST'])
 def addLike():
 	#add new like and increase Like counter on target idea 
-	createLike(request.form['ideaId'], request.form['username'])
-	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
+	createLike(likeCol,ObjectId(request.form['ideaId']), request.form['username'])
+	idea = ideaCol.IdeaDoc.find_one({"_id" : ObjectId(request.form['ideaId'])})
 	idea.likes += 1
 	idea.save()
+	return str(idea.likes)
 
-@app.route('/dislike', methods=['POST'])
+@app.route('/disLike', methods=['POST'])
 def dislike():
 	#remove like and decrease Like counter on target idea
-	removeLike(likeCol, request.form['ideaId'], request.form['username'])
-	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
+	removeLike(likeCol, ObjectId(request.form['ideaId']), request.form['username'])
+	idea = ideaCol.IdeaDoc.find_one({"_id" : ObjectId(request.form['ideaId'])})
 	idea.likes -= 1
 	idea.save()
+	return str(idea.likes)
 
 @app.route('/browse', methods=['GET'])
 def browseIdeas():
