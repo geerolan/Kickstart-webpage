@@ -28,12 +28,18 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Top k <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             <form action="/best" method="get">
-            <label for="startDate">start date</label>
-            <input name="startDate" type="date">
-            <label for="endDate">end date</label>
-            <input name="endDate" type="date">
-            <input name="k" type="text" placeholder="top k"/>
-            <input type="submit" value="search"/>
+            <div class="form-group">
+              <label for="startDate">start date</label>
+              <input class="form-control" name="startDate" type="date">
+            </div>
+            <div class="form-group">
+              <label for="endDate">end date</label>
+              <input class="form-control" name="endDate" type="date">
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="k" type="text" placeholder="top k"/>
+              <input class="form-control" type="submit" value="search"/>
+            </div>
           </form>
           </ul>
         </li>

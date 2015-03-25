@@ -5,18 +5,29 @@
 {% endwith %}
 
 <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script>
+  $(document).ready(function(){
+    alreadyLiked("{{idea._id}}", "{{user}}");
+    var likes = {{idea.likes}};
+    if(likes == 0){
+      $("#dislikebtn").prop('disabled', true);
+    }
+  });
+</script>
 
-<!--<input id="ideaId" type="hidden" value={{idea_id}}/>-->
+<div class="container">
+  <div class="col-md-6 col-md-offset-3">
+    <h1> {{idea.name}} </h1>
 
-<h2> {{idea.name}} </h2>
+    <h4> Proposed by {{idea.username}} </h4>
 
-<h3> Proposed by {{idea.username}} </h3>
+    <p> {{idea.desc}} </p>
 
-<p> {{idea.desc}} </p>
-
-<p id="like"> {{idea.likes}} </p>
-<button class=btn btn-large onClick=Like("{{idea._id}}","{{user}}")>Like </button>
-<button class=btn btn-large onClick=DisLike("{{idea._id}}","{{user}}")>Dislike </button>
+    <p id="like"> {{idea.likes}} </p>
+    <button id="likebtn" class=btn btn-large onClick=Like("{{idea._id}}","{{user}}")>Like </button>
+    <button id="dislikebtn" class=btn btn-large onClick=DisLike("{{idea._id}}","{{user}}")>Dislike </button>
+  </div>
+</div>
 
 {% endblock %}
 

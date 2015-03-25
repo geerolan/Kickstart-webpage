@@ -35,6 +35,8 @@ def index():
 	#TODO Add ideas to the template
 	if 'username' in session:
 		ideas = list(ideaCol.IdeaDoc.find({"username" : session['username']}))
+		for idea in ideas:
+			idea.created = idea.created.date()
 		return render_template('index.html', user=session['username'], ideas=ideas)
 	
 	return render_template('index.html')
@@ -87,7 +89,7 @@ def editIdea():
 	if 'delete' in request.form:
 		deleteIdea(ideaCol, likeCol, ObjectId(request.form['ideaId']))
 	else:	
-		updateIdea(ideaCol, ObjectId(request.form['ideaId']), request.form['ideaName'], request.form['desc'], request.form['tags'])
+		updateIdea(ideaCol, ObjectId(request.form['ideaId']), request.form['ideaName'], request.form['desc'], request.form['cat'], request.form['tags'])
 	
 	return redirect(url_for('index'))
 
@@ -109,6 +111,19 @@ def dislike():
 	idea.likes -= 1
 	idea.save()
 	return str(idea.likes)
+
+@app.route('/getLikes', methods=['GET'])
+def getLikes():
+	idea = ideaCol.IdeaDoc.find_one({"_id" : ObjectId(request.form['ideaId'])})
+	return str(idea.likes)
+
+@app.route('/userLiked', methods=['GET'])
+def getUserLike():
+	like = likeCol.LikeDoc.find_one({"$and": [{"username": request.args.get('username')}, {"ideaId": ObjectId(request.args.get('ideaId'))}]})
+	print like
+	if like is not None:
+		return "y"
+	return "n"
 
 @app.route('/browse', methods=['GET'])
 def browseIdeas():

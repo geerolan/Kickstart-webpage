@@ -79,12 +79,13 @@ def deleteIdea(ideaCol, likeCol, ideaId):
 	removeLikes(likeCol, ideaId)
 	idea.delete()
 
-def updateIdea(col, ideaId, name, desc, tags):
+def updateIdea(col, ideaId, name, desc, cat, tags):
 	idea = getIdeaById(col, ideaId)
 	if idea is None:
 		raise DocNotFoundException("Idea %s not found" %ideaId)
 	idea.name = name
 	idea.desc = desc
+	idea.category = cat
 	rawTags = tags.rstrip(",").replace(" ", "").split(",")
 	idea.tags = [raw for raw in rawTags if raw != u""]
 	idea.save()
