@@ -1,18 +1,40 @@
 {% block content %}
-
-<table class="table table-bordered">
-  <th>Name</th>
-  <th>Created By</th>
-  <th>Created</th>
-  <th>Tags</th>
-  {% for idea in ideas %}
+<table id="ideasTable" class="table table-bordered tablesorter">
+  <thead>
   <tr>
-    <td><a href="/ideas/{{idea._id}}">{{idea['name']}}</a></td>
-    <td>{{idea.username}}</td>
-    <td>{{idea.created}}</td>
-    <td>{% for tag in idea.tags %} <a href="/browse?tag={{tag}}"> {{tag}} </a> {% endfor %} </td>
+    <th class="tablesorter-header sorter-false">Category</th>
+    <th>Name</th>
+    <th class="tablesorter-header sorter-false">Created By</th>
+    <th>Created</th>
+    <th class="tablesorter-header sorter-false">Tags</th>
   </tr>
-  {% endfor %}
+  </thead>
+  <tbody>
+    {% for idea in ideas %}
+    <tr>
+      <td><a href="/browse?cat={{idea.category}}">{{idea.category}}</td>
+      <td><a href="/ideas/{{idea._id}}">{{idea['name']}}</a></td>
+      <td>{{idea.username}}</td>
+      <td>{{idea.created}}</td>
+      <td>{% for tag in idea.tags %} <a href="/browse?tag={{tag}}"> {{tag}} </a> {% endfor %} </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+<script src="{{ url_for('static', filename='js/jquery.tablesorter.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.tablesorter.widget.js') }}"></script>
+<script>
 
+$(document).ready(function(){
+$(function(){
+$("#ideasTable").tablesorter(
+  {
+    theme : 'default',
+    sortList: [[0,0], [2,0]],
+    headerTemplate : '{content}{icon}',
+    widgets : ["columns"]
+  });
+});
+});
+</script>
 {% endblock %}

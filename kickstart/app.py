@@ -42,16 +42,19 @@ def index():
 	return render_template('index.html')
 
 @app.route('/best', methods=['GET'])
-def topK():
-	headers = {'Content-Type': 'text/html'}
-	try:
-		#note, if none are found, returns "[]"
-		ideas = getTopKIdeas(ideaCol, request.args.get('k'), request.args.get('startDate'), request.args.get('endDate'))
-		return make_response(render_template('topk.html', k=request.args.get('k'), ideas=ideas, username=session['username']), 200, headers)
+def Best():
+	return make_response(render_template('topk.html'))
 
-	except InvalidParamsException as e:
-		print str(e)
-		return make_response(render_template('404.html'), 404, headers)
+@app.route('/topk', methods=['GET'])
+def TopK():
+	if 'k' in request.args:
+		try:
+			ideas = getTopKIdeas(ideaCol, request.args.get('k'), request.args.get('startDate'), request.args.get('endDate'))
+			return dumps(list(ideas))
+		
+		except InvalidParamsException as e:
+			print str(e)
+			return make_response(render_template('404.html'), 404, headers)
 
 @app.route('/stats', methods=['GET'])
 def showStats():
@@ -129,6 +132,8 @@ def getUserLike():
 def browseIdeas():
 	if 'tag' in request.args:
 		ideas = list(getIdeasByTag(ideaCol, request.args.get('tag')))
+	elif 'cat' in request.args:
+		ideas = list(getIdeasByCategory(ideaCol, request.args.get('cat')))
 	else:
 		ideas = list(getIdeas(ideaCol, "name"))
 

@@ -72,6 +72,9 @@ def getIdeas(col, sortKey=None):
 def getIdeasByTag(col, tag):
 	return col.IdeaDoc.find({"tags" : {"$in": [tag]}})
 
+def getIdeasByCategory(col, cat):
+	return col.IdeaDoc.find({"category" : cat})
+
 def deleteIdea(ideaCol, likeCol, ideaId):
 	idea = ideaCol.IdeaDoc.find_one({"_id" : ideaId})
 	if idea is None:
