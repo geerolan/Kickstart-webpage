@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+{% with username=user %}
+{% include "navbar.html" %}
+{% endwith %}
+
+{% if ideas%}
+
+{% with ideas=ideas %}
+{% include "listIdeas.html" %}
+{% endwith %}
+
+
+{% else %}
+
+<p> No ideas yet! Why don't you be the first? </p>
+
+{% endif %}
+{% endblock %}

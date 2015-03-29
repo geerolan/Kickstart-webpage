@@ -43,4 +43,8 @@ Temporary Items
 .apdisk
 venv/
 data/
+<<<<<<< HEAD
+=======
+tests/
+>>>>>>> simple_login
 *.pyc

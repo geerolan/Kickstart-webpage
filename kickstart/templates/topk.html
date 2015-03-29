@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% with username=user %}
+{% include "navbar.html" %}
+{% endwith %}
+
+<script type="text/javascript">
+    $(document).ready(function(){
+      $('form').submit(function (ev) {
+          ev.preventDefault();
+          console.log("hello");
+          $.ajax({
+              type: $(this).attr('method'),
+              url: $(this).attr('action'),
+              data: $(this).serialize(),
+              success: function (data) {
+                  console.log(data);
+                  $("#topIdeas").text(data);
+              }
+          });
+
+      });
+    });
+</script>
+
+<div class="container">
+  <div class="col-md-6 col-md-offset-3">
+    <form id="topForm" action="/topk" method="get">
+      <div class="form-group">
+        <label for="startDate">start date</label>
+        <input class="form-control" name="startDate" type="date">
+      </div>
+      <div class="form-group">
+        <label for="endDate">end date</label>
+        <input class="form-control" name="endDate" type="date">
+      </div>
+      <div class="form-group">
+        <input class="form-control" name="k" type="text" placeholder="top k"/>
+        <input id="ksubmit" class="form-control btn btn-default" type="submit" value="search"/>
+      </div>
+    </form>
+  </div>
+</div>
+<div id="topIdeas">
+</div>
+{% endblock %}

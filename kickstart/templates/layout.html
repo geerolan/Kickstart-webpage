@@ -1,0 +1,19 @@
+<!doctype html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+		<script type="text/javascript" src="http://www.amcharts.com/lib/3/serial.js"></script>
+		<script type="text/javascript" src="http://www.amcharts.com/lib/3/themes/none.js"></script>
+		<link rel="stylesheet" type="text/css" href='{{ url_for('static', filename='stylesheets/style.css') }}'>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+		<link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css', rel='stylesheet'>
+		<link rel="stylesheet" href='{{ url_for('static', filename='stylesheets/theme.default.css') }}'>
+		<meta name='viewport', content='width=device-width, initial-scale=1'>	
+	</head>
+
+<body>
+  {% block content %}
+  {% endblock %}
+</body>
