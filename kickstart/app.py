@@ -1,6 +1,5 @@
-from flask import Flask, session, request, redirect, url_for, render_template, make_response, abort, jsonify
-from bson.objectid import ObjectId
-from bson.json_util import dumps
+from flask import Flask, session, request, redirect, url_for, render_template, make_response
+from bson.json_util import dumps, ObjectId
 from werkzeug.routing import BaseConverter
 from mongokit import Connection
 from models.user import UserDoc
@@ -43,7 +42,9 @@ def index():
 
 @app.route('/best', methods=['GET'])
 def Best():
-	return make_response(render_template('topk.html'))
+	if 'username' in session:
+		return render_template('topk.html', user=session['username'])
+	return render_template('topk.html', user=None)
 
 @app.route('/topk', methods=['GET'])
 def TopK():
@@ -54,7 +55,7 @@ def TopK():
 		
 		except InvalidParamsException as e:
 			print str(e)
-			return make_response(render_template('404.html'), 404, headers)
+			return make_response(render_template('404.html'), 404)
 
 @app.route('/stats', methods=['GET'])
 def showStats():
@@ -67,7 +68,10 @@ def showStats():
 			stats.extend(rest)
 		stats = sorted(stats, key=lambda k: k["_id"])
 
-	return make_response(render_template('stats.html', stats=dumps(stats), user=session['username']), 200, headers)	
+	if 'username' in session:
+		return make_response(render_template('stats.html', stats=dumps(stats), user=session['username']), 200, headers)
+
+	return make_response(render_template('stats.html', stats=dumps(stats), user=None), 200, headers)
 
 @app.route('/newIdea', methods=['GET', 'POST'])
 def newIdea():
@@ -138,6 +142,8 @@ def browseIdeas():
 		ideas = list(getIdeas(ideaCol, "name"))
 
 	for idea in ideas:
+		#created date is currently in form of datetime.datetime, need to
+		#convert to datetime.date ie yyyy-mm-dd
 		idea['created'] = idea['created'].date()
 
 	if 'username' in session :
@@ -148,8 +154,12 @@ def browseIdeas():
 @app.route('/ideas/<regex("\w+"):ideaId>', methods=['GET'])
 def displayIdea(ideaId):
 	idea = getIdeaById(ideaCol, ObjectId(ideaId))
-	#if none, then redirect to a 404
-	return render_template('idea.html', idea=idea, user=session['username'])
+	if idea is not None:
+		if 'username' in session:
+			return render_template('idea.html', idea=idea, user=session['username'])
+		return render_template('idea.html', idea=idea, user=None)
+
+	return render_template('404.html')
 
 @app.route('/login', methods=['POST'])
 def login():

@@ -23,9 +23,13 @@
 
     <p> {{idea.desc}} </p>
 
+    {% if user %}
     <p id="like"> {{idea.likes}} </p>
     <button id="likebtn" class=btn btn-large onClick=Like("{{idea._id}}","{{user}}")>Like </button>
     <button id="dislikebtn" class=btn btn-large onClick=DisLike("{{idea._id}}","{{user}}")>Dislike </button>
+    {% else %}
+    <a href="/">Log in to Like this idea!</a>
+    {% endif %}
   </div>
 </div>
 
